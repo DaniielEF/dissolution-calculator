@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import { useForm } from "../customHooks/useForm";
 
 
@@ -19,45 +20,68 @@ const DissolutionCalculator = () => {
     finalVolume: 1,
   });
 
-
-
   const { measureName, concentrationPatron, finalConcentration, finalVolume, patronVolume } = form;
 
-// Funcion para el manejo del calculo de dilucion en el formulario
+  const [latestCalc, setLatestCalc] = useState<FormData>()
+
+
+
+  // Funcion para el manejo del calculo de dilucion en el formulario
   const handleCalc = (e: React.FormEvent) => {
 
     e.preventDefault()
 
     if (concentrationPatron > finalConcentration) {
 
-      const patronVolumen = finalVolume * finalConcentration / concentrationPatron;
+      const calculatedVolumen = finalVolume * finalConcentration / concentrationPatron;
 
-      setField("patronVolume", parseFloat(patronVolumen.toFixed(2)));
+      const lastCalculationRes = {
+        ...form,
+        patronVolume: parseFloat(calculatedVolumen.toFixed(2))
+      };
 
-      if(patronVolume){
-        console.log(true)
-        saveHistory();
-      }
-      
+      setField("patronVolume", lastCalculationRes.patronVolume);
+
+      setLatestCalc(lastCalculationRes);
 
 
     } else {
       alert('No se puede diluir desde una concentración de patrón menor')
       setField("patronVolume", 0)
     }
-   
+
   }
 
-    console.log(history)
+  useEffect(() => {
+
+    console.log(typeof (latestCalc))
+
+    if (latestCalc && latestCalc != undefined) {
+
+      saveHistory(latestCalc)
+
+      const updateHistory = [...history, latestCalc]
+      localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
+      console.log('saved to History: ', latestCalc);
+
+    }
+
+
+
+
+  }, [latestCalc]);
+
+  console.log(history)
+
 
   return (
     <div className="container mt-5 ">
 
       <form autoComplete="off" className="flex items-center justify-center flex-col">
-        
+
         <div className="text-3xl">
           Calculadora de diluciones
-        </div><br/>
+        </div><br />
 
         <div className="mb-3">
           <label className="formLabel">Nombre muestra</label><br />
@@ -134,8 +158,29 @@ const DissolutionCalculator = () => {
           onClick={handleCalc}
           type="submit"
         >Calcular</button>
-        
+
       </form>
+
+      <div className=" container mt-5 gap-1">
+        <h2>Caculation History</h2>
+        <div>
+          {
+            history.map((history, index) => (
+              <div key={index} className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
+                {history.measureName}:<br />
+                Concentración inicial del patrón: {history.concentrationPatron} Mol<br />
+                Concentración deseada: {history.finalConcentration} Mol<br />
+                Volumen final de la dilución: {history.finalVolume} mL<br />
+                Volumen requerido del patrón: {history.patronVolume} mL<br />
+                <div className="space-x-4">
+                  <button id="favorite">Fav</button>
+                  <button id="deleteH">Del</button>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
 
     </div>
   )

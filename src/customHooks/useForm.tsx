@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from 'react'
 
 export const useForm = <T extends Object>(initialState: T) => {
   const [form, setForm] = useState(initialState);
-  const [history, setHistory] = useState<T[]>([]);
+  const [history, setHistory] = useState<T[]>(()=>JSON.parse(localStorage.getItem('calculationHistory')||"[]"));
 
   const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = target;
@@ -40,11 +40,12 @@ export const useForm = <T extends Object>(initialState: T) => {
 
   }
   const setField = <K extends keyof T>(name: K, value: T[K]) => {
+
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const saveHistory = ()=>{
-    setHistory((prev)=>[...prev, form])
+  const saveHistory = (data:T)=>{
+    setHistory((prev)=>[...prev, data])
   }
 
 
