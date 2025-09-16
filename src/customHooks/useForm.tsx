@@ -32,10 +32,6 @@ export const useForm = <T extends Object>(initialState: T) => {
         });
 
       }
-    // setForm({
-    //   ...form,
-    //   [name]: type === "number" ? parseFloat(value)>0?parseFloat(value):0 : value
-    // })
 
 
   }

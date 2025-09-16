@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "../customHooks/useForm";
 
 
+
 interface FormData {
   measureName: string;
   concentrationPatron: number;
@@ -13,7 +14,7 @@ interface FormData {
 
 const DissolutionCalculator = () => {
 
-  const { form, history, handleChange, setField, saveHistory } = useForm<FormData>({
+  const { form, handleChange, setField} = useForm<FormData>({
     measureName: 'Muestra ',
     concentrationPatron: 0,
     finalConcentration: 0,
@@ -24,7 +25,8 @@ const DissolutionCalculator = () => {
 
   const [latestCalc, setLatestCalc] = useState<FormData>()
 
-
+  const [history, setHistory] = useState<FormData[]>(()=>JSON.parse(localStorage.getItem('calculationHistory')||"[]"));
+  const [favorites, setFavorites] = useState<FormData[]>(()=>JSON.parse(localStorage.getItem('favoriteCalc')||"[]"))
 
   // Funcion para el manejo del calculo de dilucion en el formulario
   const handleCalc = (e: React.FormEvent) => {
@@ -50,6 +52,10 @@ const DissolutionCalculator = () => {
       setField("patronVolume", 0)
     }
 
+  };
+
+    const saveHistory = (data:FormData)=>{
+    setHistory((prev)=>([...prev, data]))
   }
 
   useEffect(() => {
@@ -66,10 +72,19 @@ const DissolutionCalculator = () => {
 
     }
 
-
-
-
   }, [latestCalc]);
+
+  const addFavorites=(data:FormData) =>{
+    setFavorites((prev)=>([...prev,data]))    
+  }
+  useEffect(() => {
+
+    localStorage.setItem('favoriteCalc',JSON.stringify(favorites))
+    console.log('favorite saved')
+
+  }, [favorites])
+  
+
 
   console.log(history)
 
@@ -173,7 +188,9 @@ const DissolutionCalculator = () => {
                 Volumen final de la dilución: {history.finalVolume} mL<br />
                 Volumen requerido del patrón: {history.patronVolume} mL<br />
                 <div className="space-x-4">
-                  <button id="favorite">Fav</button>
+                  <button id="favorite"
+                  onClick={()=>addFavorites(history)}
+                  >⭐Fav</button>
                   <button id="deleteH">Del</button>
                 </div>
               </div>
