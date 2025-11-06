@@ -5,11 +5,16 @@ import { useForm } from "../customHooks/useForm";
 
 
 interface FormData {
+  
   measureName: string;
   concentrationPatron: number;
   finalConcentration: number;
   finalVolume: number;
   patronVolume?: number;
+}
+
+interface FormDataWithId extends FormData{
+  id?:number;
 }
 
 const DissolutionCalculator = () => {
@@ -25,13 +30,13 @@ const DissolutionCalculator = () => {
 
   const [latestCalc, setLatestCalc] = useState<FormData>()
 
-  const [history, setHistory] = useState<FormData[]>(()=>JSON.parse(localStorage.getItem('calculationHistory')||"[]"));
-  const [favorites, setFavorites] = useState<FormData[]>(()=>JSON.parse(localStorage.getItem('favoriteCalc')||"[]"))
+  const [history, setHistory] = useState<FormDataWithId[]>(()=>JSON.parse(localStorage.getItem('calculationHistory')||"[]"));
+  const [favorites, setFavorites] = useState<FormDataWithId[]>(()=>JSON.parse(localStorage.getItem('favoriteCalc')||"[]"))
 
   // Funcion para el manejo del calculo de dilucion en el formulario
   const handleCalc = (e: React.FormEvent) => {
 
-    e.preventDefault()
+     e.preventDefault()
 
     if (concentrationPatron > finalConcentration) {
 
@@ -39,7 +44,8 @@ const DissolutionCalculator = () => {
 
       const lastCalculationRes = {
         ...form,
-        patronVolume: parseFloat(calculatedVolumen.toFixed(2))
+        patronVolume: parseFloat(calculatedVolumen.toFixed(2)),
+        id: crypto.randomUUID()
       };
 
       setField("patronVolume", lastCalculationRes.patronVolume);
@@ -54,7 +60,7 @@ const DissolutionCalculator = () => {
 
   };
 
-    const saveHistory = (data:FormData)=>{
+    const saveHistory = (data:FormDataWithId)=>{
     setHistory((prev)=>([...prev, data]))
   }
 
@@ -74,7 +80,8 @@ const DissolutionCalculator = () => {
 
   }, [latestCalc]);
 
-  const addFavorites=(data:FormData) =>{
+  const addFavorites=(data:FormDataWithId) =>{
+    console.log(data.id)
     setFavorites((prev)=>([...prev,data]))    
   }
   useEffect(() => {
@@ -84,7 +91,14 @@ const DissolutionCalculator = () => {
 
   }, [favorites])
   
+const deleteHistoryElement = (element:FormDataWithId) => {
+  // Aquí iría la lógica para eliminar un elemento del historial
+  console.log("Eliminar elemento del historial",element.id);
 
+  const updateHistory = history.filter(i => i.id !== element.id);
+  setHistory(updateHistory);
+  localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
+}
 
   console.log(history)
 
@@ -176,12 +190,34 @@ const DissolutionCalculator = () => {
 
       </form>
 
+{/* FAVORITOS 
       <div className=" container mt-5 gap-1">
-        <h2>Caculation History</h2>
+        <h2>Favorites History</h2>
         <div>
           {
-            history.map((history, index) => (
+            favorites.map((favorite, index) => (
               <div key={index} className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
+                {favorite.measureName}:<br />
+                Concentración inicial del patrón: {favorite.concentrationPatron} Mol<br />
+                Concentración deseada: {favorite.finalConcentration} Mol<br />
+                Volumen final de la dilución: {favorite.finalVolume} mL<br />
+                Volumen requerido del patrón: {favorite.patronVolume} mL<br />
+                <div className="space-x-4">
+                  <button id="deleteH">⭐</button>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+*/}
+      <div className=" container mt-5 gap-2 flex items-center justify-center flex-col">
+        <h2>Caculation History</h2>
+        <div className=" flex-col justify-center">
+          {
+            history.map((history, index) => (
+              <div key={index}  className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
+                
                 {history.measureName}:<br />
                 Concentración inicial del patrón: {history.concentrationPatron} Mol<br />
                 Concentración deseada: {history.finalConcentration} Mol<br />
@@ -190,8 +226,10 @@ const DissolutionCalculator = () => {
                 <div className="space-x-4">
                   <button id="favorite"
                   onClick={()=>addFavorites(history)}
-                  >⭐Fav</button>
-                  <button id="deleteH">Del</button>
+                  >★</button>
+                  <button id="deleteH"
+                  onClick={()=>deleteHistoryElement(history)}
+                  >🗑️</button>
                 </div>
               </div>
             ))

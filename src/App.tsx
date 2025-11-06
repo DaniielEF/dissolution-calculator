@@ -8,11 +8,6 @@ function App() {
   return (
     <>
 
-      <div>
-        <h1>Calculadora química</h1>
-
-      </div>
-
     <SideBar/>
 
     <DissolutionCalculator/>
