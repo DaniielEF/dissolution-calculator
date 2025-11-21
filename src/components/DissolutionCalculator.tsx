@@ -1,42 +1,47 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "../customHooks/useForm";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStar, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 
 
 interface FormData {
-  
+
   measureName: string;
   concentrationPatron: number;
   finalConcentration: number;
   finalVolume: number;
   patronVolume?: number;
+  isFavorite?: boolean;
 }
 
-interface FormDataWithId extends FormData{
-  id?:number;
+interface FormDataWithId extends FormData {
+  id?: number;
+
 }
 
 const DissolutionCalculator = () => {
 
-  const { form, handleChange, setField} = useForm<FormData>({
+  const { form, handleChange, setField } = useForm<FormData>({
     measureName: 'Muestra ',
     concentrationPatron: 0,
     finalConcentration: 0,
     finalVolume: 1,
+    
   });
 
   const { measureName, concentrationPatron, finalConcentration, finalVolume, patronVolume } = form;
 
   const [latestCalc, setLatestCalc] = useState<FormData>()
 
-  const [history, setHistory] = useState<FormDataWithId[]>(()=>JSON.parse(localStorage.getItem('calculationHistory')||"[]"));
-  const [favorites, setFavorites] = useState<FormDataWithId[]>(()=>JSON.parse(localStorage.getItem('favoriteCalc')||"[]"))
+  const [history, setHistory] = useState<FormDataWithId[]>(() => JSON.parse(localStorage.getItem('calculationHistory') || "[]"));
+  const [favorites, setFavorites] = useState<FormDataWithId[]>(() => JSON.parse(localStorage.getItem('favoriteCalc') || "[]"))
 
   // Funcion para el manejo del calculo de dilucion en el formulario
   const handleCalc = (e: React.FormEvent) => {
 
-     e.preventDefault()
+    e.preventDefault()
 
     if (concentrationPatron > finalConcentration) {
 
@@ -45,7 +50,8 @@ const DissolutionCalculator = () => {
       const lastCalculationRes = {
         ...form,
         patronVolume: parseFloat(calculatedVolumen.toFixed(2)),
-        id: crypto.randomUUID()
+        id: crypto.randomUUID(),
+        isFavorite: false
       };
 
       setField("patronVolume", lastCalculationRes.patronVolume);
@@ -60,45 +66,65 @@ const DissolutionCalculator = () => {
 
   };
 
-    const saveHistory = (data:FormDataWithId)=>{
-    setHistory((prev)=>([...prev, data]))
+  const saveHistory = (data: FormDataWithId) => {
+
+
+    setHistory((prev) => {
+      const newHistory = [...prev, data];
+      localStorage.setItem('calculationHistory', JSON.stringify(newHistory));
+      return newHistory;
+    
+    })
   }
 
-  useEffect(() => {
-
-    console.log(typeof (latestCalc))
-
+  useEffect(() => { 
     if (latestCalc && latestCalc != undefined) {
-
       saveHistory(latestCalc)
-
-      const updateHistory = [...history, latestCalc]
-      localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
-      console.log('saved to History: ', latestCalc);
-
-    }
-
+   }
   }, [latestCalc]);
 
-  const addFavorites=(data:FormDataWithId) =>{
+  const addFavorites = (data: FormDataWithId) => {
     console.log(data.id)
-    setFavorites((prev)=>([...prev,data]))    
+
+    setHistory(prev=>{
+      const updateHistory = prev.map(item=>
+        item.id === data.id? {...item, isFavorite: !item.isFavorite}: item
+      )
+      localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
+      return updateHistory;
+
+  })
+
+    setFavorites(prev => {
+      const exists = prev.some(item => item.id === data.id);
+      let newFavorites = [];
+      if (!exists) {
+        newFavorites =  [...prev, {...data, isFavorite: true}]
+      }else{
+        newFavorites = prev.filter(item => item.id !== data.id);
+      }
+
+      localStorage.setItem('favoriteCalc', JSON.stringify(newFavorites));
+      return newFavorites;
+
+  })
+};
+
+  // useEffect(() => {
+
+  //   localStorage.setItem('favoriteCalc', JSON.stringify(favorites))
+  //   console.log('favorite saved')
+
+  // }, [favorites])
+
+  const deleteHistoryElement = (element: FormDataWithId) => {
+    // Aquí se encuentra la lógica para eliminar un elemento del historial
+    console.log("Eliminar elemento del historial", element.id);
+
+    const updateHistory = history.filter(i => i.id !== element.id);
+    setHistory(updateHistory);
+    localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
   }
-  useEffect(() => {
-
-    localStorage.setItem('favoriteCalc',JSON.stringify(favorites))
-    console.log('favorite saved')
-
-  }, [favorites])
-  
-const deleteHistoryElement = (element:FormDataWithId) => {
-  // Aquí iría la lógica para eliminar un elemento del historial
-  console.log("Eliminar elemento del historial",element.id);
-
-  const updateHistory = history.filter(i => i.id !== element.id);
-  setHistory(updateHistory);
-  localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
-}
 
   console.log(history)
 
@@ -106,37 +132,42 @@ const deleteHistoryElement = (element:FormDataWithId) => {
   return (
     <div className="container mt-5 ">
 
-      <form autoComplete="off" className="flex items-center justify-center flex-col">
+      <form autoComplete="off" className="flex items-center justify-center flex-col  min-h-screen p-6 rounded-2xl g-6 bg-gray-500">
 
-        <div className="text-3xl">
+   <div className="text-3xl">
           Calculadora de diluciones
         </div><br />
 
-        <div className="mb-3">
+        <div className="mb-2">
           <label className="formLabel">Nombre muestra</label><br />
-          <div className="mb-6 inline-flex gap-6">
-            <input type="text"
-              name="measureName"
-              className="form-control"
-              value={measureName}
-              onChange={handleChange}
-            />
+          <div className="inline-flex gap-6">
+            <div className="mb-6 inline-flex border rounded-sm " >
+              <input type="text"
+                name="measureName"
+                className="form-control"
+                value={measureName}
+                onChange={handleChange}
+              />
+            </div>
             <div>
-
+                             
             </div>
           </div>
         </div>
 
-        <div className="mb-3">
+      <div className="mb-3">
           <label>Concentración patrón</label><br />
-          <div className="mb-6 inline-flex gap-6">
-            <input type="number"
-              min={"0"}
-              maxLength={3}
-              name="concentrationPatron"
-              value={concentrationPatron}
-              onChange={handleChange}
-            />
+          <div className="inline-flex gap-6">
+            <div className="mb-6  gap-6 border rounded-sm ">
+              <input type="number"
+                min={"0"}
+                maxLength={3}
+                name="concentrationPatron"
+                value={concentrationPatron}
+                onChange={handleChange}
+              />
+
+            </div>
             <div>
               Mol
             </div>
@@ -145,13 +176,16 @@ const deleteHistoryElement = (element:FormDataWithId) => {
 
         <div className="mb-3">
           <label>Concentración deseada</label><br />
-          <div className="mb-6 inline-flex gap-6">
-            <input type="number"
-              min={"0"}
-              name="finalConcentration"
-              value={finalConcentration}
-              onChange={handleChange}
-            />
+          <div className="inline-flex gap-6">
+            <div className="mb-6 inline-flex gap-6 border rounded-sm">
+              <input type="number"
+                min={"0"}
+                name="finalConcentration"
+                value={finalConcentration}
+                onChange={handleChange}
+              />
+
+            </div>
             <div>
               Mol
             </div>
@@ -159,12 +193,14 @@ const deleteHistoryElement = (element:FormDataWithId) => {
         </div>
         <div className="mb-3">
           <label>Volumen final deseada</label><br />
-          <div className="mb-6 inline-flex gap-6">
-            <input type="number"
-              name="finalVolume"
-              value={finalVolume}
-              onChange={handleChange}
-            />
+          <div className="inline-flex gap-6">
+            <div className="mb-6 inline-flex gap-6 border rounded-sm">
+              <input type="number"
+                name="finalVolume"
+                value={finalVolume}
+                onChange={handleChange}
+              />
+            </div>
             <div>
               mL
             </div>
@@ -172,12 +208,15 @@ const deleteHistoryElement = (element:FormDataWithId) => {
         </div>
         <div className="mb-3">
           <label>Volumen inicial patron</label><br />
-          <div className="mb-6 inline-flex gap-6">
-            <input type="number"
-              name="patronVolume"
-              value={patronVolume ?? ""}
-              disabled
-            />
+          <div className="inline-flex gap-6">
+            <div className="mb-6 inline-flex gap-6 border rounded-sm ">
+              <input type="number"
+                name="patronVolume"
+                value={patronVolume ?? ""}
+                disabled
+              />
+
+            </div>
             <div>
               mL
             </div>
@@ -190,7 +229,7 @@ const deleteHistoryElement = (element:FormDataWithId) => {
 
       </form>
 
-{/* FAVORITOS 
+      {/* FAVORITOS 
       <div className=" container mt-5 gap-1">
         <h2>Favorites History</h2>
         <div>
@@ -203,7 +242,7 @@ const deleteHistoryElement = (element:FormDataWithId) => {
                 Volumen final de la dilución: {favorite.finalVolume} mL<br />
                 Volumen requerido del patrón: {favorite.patronVolume} mL<br />
                 <div className="space-x-4">
-                  <button id="deleteH">⭐</button>
+                  <button id="deleteH"><FontAwesomeIcon icon={faStar} style={{color: "#FFD43B",}} /></button>
                 </div>
               </div>
             ))
@@ -213,11 +252,17 @@ const deleteHistoryElement = (element:FormDataWithId) => {
 */}
       <div className=" container mt-5 gap-2 flex items-center justify-center flex-col">
         <h2>Caculation History</h2>
-        <div className=" flex-col justify-center">
+        <label className="inline-flex items-center cursor-pointer">
+          <span className="select-none text-sm font-medium text-heading">Historial</span>
+          <input type="checkbox" value="" className="sr-only peer"></input>
+          <div className="relative mx-3 w-9 h-5 bg-neutral-quaternary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+          <span className="select-none text-sm font-medium text-heading">Favoritos</span>
+        </label>
+        <div className=" flex flex-col items-center justify-center min-h-screen bg-gray-600 p-4 rounded-2xl">
           {
             history.map((history, index) => (
-              <div key={index}  className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
-                
+              <div key={index} className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
+
                 {history.measureName}:<br />
                 Concentración inicial del patrón: {history.concentrationPatron} Mol<br />
                 Concentración deseada: {history.finalConcentration} Mol<br />
@@ -225,11 +270,11 @@ const deleteHistoryElement = (element:FormDataWithId) => {
                 Volumen requerido del patrón: {history.patronVolume} mL<br />
                 <div className="space-x-4">
                   <button id="favorite"
-                  onClick={()=>addFavorites(history)}
-                  >★</button>
+                    onClick={() => addFavorites(history)}
+                  >{history.isFavorite? <FontAwesomeIcon icon={faStar} style={{color: "#FFD43B",}} /> :<FontAwesomeIcon icon={faStar} />}</button>
                   <button id="deleteH"
-                  onClick={()=>deleteHistoryElement(history)}
-                  >🗑️</button>
+                    onClick={() => deleteHistoryElement(history)}
+                  ><FontAwesomeIcon icon={faTrash} /></button>
                 </div>
               </div>
             ))
