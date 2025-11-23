@@ -126,6 +126,9 @@ const DissolutionCalculator = () => {
     const updateHistory = history.filter(i => i.id !== element.id);
     setHistory(updateHistory);
     localStorage.setItem('calculationHistory', JSON.stringify(updateHistory));
+    const updateFavorites = updateHistory.filter(i => i.isFavorite === true);
+    setFavorites(updateFavorites)
+    localStorage.setItem('favoriteCalc', JSON.stringify(updateFavorites))
   }
 
   console.log(itemToShow)
@@ -135,7 +138,7 @@ const DissolutionCalculator = () => {
     <div>
     <div className="  flex items-center justify-center flex-col min-h-screen ">
 
-      <form autoComplete="off" className="flex flex-col w-full min-w-min  max-w-sm p-6 rounded-2xl g-6 bg-gray-100">
+      <form autoComplete="off" className="flex flex-col w-full min-w-min  max-w-sm p-6 rounded-2xl g-6 bg-gray-300">
 
         <div className="text-3xl">
           Calculadora de diluciones
@@ -236,13 +239,13 @@ const DissolutionCalculator = () => {
 
       <div className="  gap-2 flex items-center justify-center flex-col">
         <h2>Caculation History</h2>
-        <label className="inline-flex items-center cursor-pointer">
+        <label className="inline-flex items-center cursor-pointer bg-gray-300">
           <span className="select-none text-sm font-medium text-heading">Historial</span>
           <input type="checkbox" value="" className="sr-only peer" checked={showFavorites} onChange={(e) => setShowFavorites(e.target.checked)}></input>
           <div className="relative mx-3 w-9 h-5 bg-neutral-quaternary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
           <span className="select-none text-sm font-medium text-heading">Favoritos</span>
         </label>
-        <div className=" flex flex-col items-center justify-center min-h-screen bg-gray-600 p-4 rounded-2xl">
+        <div className=" flex flex-col items-center justify-center min-h-screen bg-gray-300 p-4 rounded-2xl">
           {
             itemToShow.map((history, index) => (
               <div key={index} className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
