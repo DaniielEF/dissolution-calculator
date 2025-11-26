@@ -137,17 +137,17 @@ const DissolutionCalculator = () => {
   return (
     <div>
     <div className="  flex items-center justify-center flex-col min-h-screen ">
-
+        
       <form autoComplete="off" className="flex flex-col w-full min-w-min  max-w-sm p-6 rounded-2xl g-6 bg-gray-300">
 
         <div className="text-3xl">
-          Calculadora de disoluciones
+          Calculadora de diluciones
         </div><br />
 
         <div className="mb-2">
           <label className="formLabel">Nombre muestra</label><br />
           <div className="inline-flex gap-6">
-            <div className="mb-6 inline-flex border rounded-sm " >
+            <div className="mb-6 inline-flex border rounded-sm bg-white p-2 " >
               <input type="text"
                 name="measureName"
                 className="form-control"
@@ -164,7 +164,7 @@ const DissolutionCalculator = () => {
         <div className="mb-3">
           <label>Concentración patrón</label><br />
           <div className="inline-flex gap-6">
-            <div className="mb-6  gap-6 border rounded-sm ">
+            <div className="mb-6  gap-6 border rounded-sm bg-white p-2  ">
               <input type="number"
                 min={"0"}
                 maxLength={3}
@@ -183,7 +183,7 @@ const DissolutionCalculator = () => {
         <div className="mb-3">
           <label>Concentración deseada</label><br />
           <div className="inline-flex gap-6">
-            <div className="mb-6 inline-flex gap-6 border rounded-sm">
+            <div className="mb-6 inline-flex gap-6 border bg-white p-2 rounded-sm">
               <input type="number"
                 min={"0"}
                 name="finalConcentration"
@@ -200,7 +200,7 @@ const DissolutionCalculator = () => {
         <div className="mb-3">
           <label>Volumen final deseada</label><br />
           <div className="inline-flex gap-6">
-            <div className="mb-6 inline-flex gap-6 border rounded-sm">
+            <div className="mb-6 inline-flex gap-6 border bg-white p-2  rounded-sm">
               <input type="number"
                 name="finalVolume"
                 value={finalVolume}
@@ -215,7 +215,7 @@ const DissolutionCalculator = () => {
         <div className="mb-3">
           <label>Volumen inicial patron</label><br />
           <div className="inline-flex gap-6">
-            <div className="mb-6 inline-flex gap-6 border rounded-sm ">
+            <div className="mb-6 inline-flex gap-6 border bg-white p-2 rounded-sm ">
               <input type="number"
                 name="patronVolume"
                 value={patronVolume ?? ""}
