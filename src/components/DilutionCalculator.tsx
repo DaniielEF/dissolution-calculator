@@ -239,18 +239,24 @@ const DissolutionCalculator = () => {
 
       <div className="  gap-2 flex items-center justify-center flex-col">
         <h2>Caculation History</h2>
-        <label className="inline-flex items-center cursor-pointer bg-gray-300">
-          <span className="select-none text-sm font-medium text-heading">Historial</span>
+        <label className="relative inline-flex items-center cursor-pointer bg-gray-300 p-4 rounded-2xl">
+          <span className="select-none text-sm font-medium text-heading ">Historial</span>
           <input type="checkbox" value="" className="sr-only peer" checked={showFavorites} onChange={(e) => setShowFavorites(e.target.checked)}></input>
-          <div className="relative mx-3 w-9 h-5 bg-neutral-quaternary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+          <div className=" relative mx-3 w-9 h-5.5  bg-neutral-quaternary border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
           <span className="select-none text-sm font-medium text-heading">Favoritos</span>
         </label>
-        <div className=" flex flex-col items-center justify-center min-h-screen bg-gray-300 p-4 rounded-2xl">
+        <div className=" flex flex-col items-center min-h-screen bg-gray-300 p-4 rounded-2xl">
           {
+            itemToShow.length === 0?(
+              <div className="border-2 gap-6 flex object-center flex-col p-6 m-4 rounded-2xl">
+              <h2>Empty List</h2>
+              <p>No tienes elementos en este momento</p>   
+              </div>           
+            ):(
+          
             itemToShow.map((history, index) => (
               <div key={index} className="border-2 gap-6 inline-flex flex-col p-6 m-4 rounded-2xl">
-
-                {history.measureName}:<br />
+                {history.measureName}<br />
                 Concentración inicial del patrón: {history.concentrationPatron} Mol<br />
                 Concentración deseada: {history.finalConcentration} Mol<br />
                 Volumen final de la dilución: {history.finalVolume} mL<br />
@@ -265,7 +271,9 @@ const DissolutionCalculator = () => {
                   ><FontAwesomeIcon icon={faTrash} /></button>
                 </div>
               </div>
+            
             ))
+            )
           }
         </div>
       </div>
